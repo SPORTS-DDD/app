@@ -1,0 +1,91 @@
+zones:
+  
+  - name: 'Allemagne'
+    id: 30
+    mdjs_id: 272
+    tournaments:
+      - name: 'Bundesliga'
+        id: 42
+        mdjs_id: 2321
+  
+  - name: 'Angleterre'
+    id: 1
+    mdjs_id: 66
+    tournaments:
+      - name: 'Premier League'
+        id: 1
+        mdjs_id: 331
+
+  - name: 'Argentine'
+    id: 48
+    mdjs_id: 9
+    tournaments:
+      - name: 'Liga Profesional'
+        id: 68
+        mdjs_id: 945
+  
+  - name: 'Espagne'
+    id: 32
+    mdjs_id: 122
+    tournaments:
+      - name: 'LaLiga'
+        id: 36
+        mdjs_id: 570
+
+  - name: 'France'
+    id: 37
+    mdjs_id: 49
+    tournaments: 
+      - name: 'Ligue 1'
+        id: 4
+        mdjs_id: 781
+  
+  - name: 'International Clubs'
+    id: 393
+    mdjs_id: 46
+    meta:
+      comment: |
+        TBD: SportRadar includes UEFA Europa & Champions league in 
+        'Ìnternational Clubs', while MDJS includes it in 'EUROPE'.
+        So we put EUROPE mdjs_id which is 46.
+    tournaments:
+      - name: 'UEFA Champions League'
+        id: 151665
+        mdjs_id: 856
+      - name: 'UEFA Europa League'
+        id: 151681
+        mdjs_id: 210
+  
+  - name: 'Italie'
+    id: 31
+    mdjs_id: 187
+    tournaments:
+      - name: 'Serie A'
+        id: 33
+        mdjs_id: 1171
+
+  - name: 'Maroc'
+    id: 303
+    mdjs_id: 88
+    tournaments:
+      - name: 'Botola Pro D1'
+        id: 3640
+        mdjs_id: 1020
+
+  - name: 'Pays-Bas'
+    id: 35
+    mdjs_id: 99
+    tournaments:
+      - name: 'Eredivisie'
+        id: 39
+        mdjs_id: 115
+  
+  - name: 'Portugal'
+    id: 44
+    mdjs_id: 107
+    tournaments:
+      - name: 'Liga Portugal'
+        id: 52
+        mdjs_id: 770
+
+
