@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-  run_tests:
+  generate_sporacle_db:
     runs-on: ubuntu-latest
     steps:
       - name: 'Git Checkout'
@@ -27,6 +27,5 @@ jobs:
         uses: astral-sh/setup-uv@v2
       - name: 'Install dependencies'
         id: install_dependencies
-        working-directory: ${{ github.workspace }}/src
         run:
           uv pip install sporacle @ https://${{ secrets.SPORACLE_GITHUB_TOKEN }}@github.com/SPORTS-DDD/sporacle/releases/download/v0.1.0/sporacle-0.1.0-py3-none-any.whl
