@@ -28,4 +28,4 @@ jobs:
       - name: 'Install dependencies'
         id: install_dependencies
         run:
-          uv pip install sporacle @ https://${{ secrets.SPORACLE_GITHUB_TOKEN }}@github.com/SPORTS-DDD/sporacle/releases/download/v0.1.0/sporacle-0.1.0-py3-none-any.whl
+          uv pip install https://${{ secrets.SPORACLE_GITHUB_TOKEN }}@github.com/SPORTS-DDD/sporacle/releases/download/v0.1.0/sporacle-0.1.0-py3-none-any.whl
