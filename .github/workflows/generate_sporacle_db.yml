@@ -43,9 +43,13 @@ jobs:
         run: sporacle load competitions
       - name: 'Extract/Load match results'
         run: sporacle load match_results
+      - name: 'Set tag version'
+        run: echo "TAG_VERSION=$(python3 -m set_tag_version)" >> $GITHUB_ENV
       - name: 'Create release'
         uses: softprops/action-gh-release@v2
         with:
+          name: 'Sporacle DB v$TAG_VERSION'
+          tag: $TAG_VERSION
           files: '${{ env.SQLITE_DATABASE_FOLDER_PATH }}/database.db'
           make_latest: true
       - name: 'Drop previous releases'
