@@ -25,7 +25,13 @@ jobs:
               gcc
       - name: Install uv
         uses: astral-sh/setup-uv@v2
+      - name: Clone sporacle
+        run: git clone https://${{ secrets.SPORACLE_GITHUB_TOKEN }}@github.com/SPORTS-DDD/sporacle.git
       - name: 'Install dependencies'
         id: install_dependencies
         run:
-          uv pip install https://${{ secrets.SPORACLE_GITHUB_TOKEN }}@github.com/SPORTS-DDD/sporacle/releases/download/v0.1.0/sporacle-0.1.0-py3-none-any.whl --system
+          uv pip install "sporacle @ sporacle/src" --system
+      # - name: 'Install dependencies'
+      #   id: install_dependencies
+      #   run:
+      #     uv pip install https://${{ secrets.SPORACLE_GITHUB_TOKEN }}@github.com/SPORTS-DDD/sporacle/releases/download/v0.1.0/sporacle-0.1.0-py3-none-any.whl --system
