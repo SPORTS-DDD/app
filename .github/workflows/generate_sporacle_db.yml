@@ -43,8 +43,13 @@ jobs:
         run: sporacle load competitions
       - name: 'Extract/Load match results'
         run: sporacle load match_results
-      - name: 'Upload database to GitHub Artifacts'
-        uses: actions/upload-artifact@v4
+      - name: 'Create release'
+        uses: softprops/action-gh-release@v2
         with:
-          name: 'database.db'
-          path: "${{ env.SQLITE_DATABASE_FOLDER_PATH }}/database.db"
+          files: '${{ env.SQLITE_DATABASE_FOLDER_PATH }}/database.db'
+          make_latest: true
+      - name: 'Drop previous releases'
+        uses: sgpublic/delete-release-action@v1.1
+        with:
+          release-drop: true
+          release-drop-tag: true
