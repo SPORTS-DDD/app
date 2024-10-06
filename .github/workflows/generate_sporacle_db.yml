@@ -2,8 +2,10 @@ name: 'Generate Sporacle DB'
 
 on:
   workflow_dispatch:
-    
 
+permissions:
+  contents: write
+    
 jobs:
 
   generate_sporacle_db:
