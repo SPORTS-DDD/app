@@ -47,6 +47,8 @@ jobs:
         run: sporacle load match_results
       - name: 'Set tag version'
         run: echo "TAG_VERSION=$(python3 -m set_tag_version)" >> $GITHUB_ENV
+      - name: 'Debug elements'
+        run: ls
       - name: 'Commit Sporacle DB'
         uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
         with:
