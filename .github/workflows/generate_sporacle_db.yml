@@ -37,7 +37,7 @@ jobs:
         id: install_dependencies
         run:
           uv pip install "sporacle @ sporacle/src" --system
-      - name: 'Create database folder'
+      - name: 'Create DB folder'
         run: mkdir ${{ env.SQLITE_DATABASE_FOLDER_PATH }}
       - name: 'Extract/Load future matches & odds'
         run: sporacle load odds_matches
@@ -47,17 +47,23 @@ jobs:
         run: sporacle load match_results
       - name: 'Set tag version'
         run: echo "TAG_VERSION=$(python3 -m set_tag_version)" >> $GITHUB_ENV
-      - name: 'Create release'
-        uses: softprops/action-gh-release@v2
+      - name: 'Commit Sporacle DB'
+        uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
         with:
-          name: 'Sporacle DB v${{ env.TAG_VERSION }}'
-          tag_name: v${{ env.TAG_VERSION }}
-          files: '${{ env.SQLITE_DATABASE_FOLDER_PATH }}/database.db'
-          make_latest: true
-      - name: 'Drop previous releases'
-        uses: sgpublic/delete-release-action@v1.1
-        with:
-          release-drop: true
-          release-drop-tag: true
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+          add: '${{ env.SQLITE_DATABASE_FOLDER_PATH }}/database.db'
+          message: '${{ env.TAG_VERSION }} Sporacle DB'
+          push: 'origin database --set-upstream --force'
+      # - name: 'Create release'
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     name: 'Sporacle DB v${{ env.TAG_VERSION }}'
+      #     tag_name: v${{ env.TAG_VERSION }}
+      #     files: '${{ env.SQLITE_DATABASE_FOLDER_PATH }}/database.db'
+      #     make_latest: true
+      # - name: 'Drop previous releases'
+      #   uses: sgpublic/delete-release-action@v1.1
+      #   with:
+      #     release-drop: true
+      #     release-drop-tag: true
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token }}
