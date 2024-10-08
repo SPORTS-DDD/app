@@ -52,7 +52,7 @@ jobs:
       - name: 'Commit Sporacle DB'
         uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
         with:
-          add: '${{ env.SQLITE_DATABASE_FOLDER_PATH }}/database.db'
+          add: 'data/database.db'
           message: '${{ env.TAG_VERSION }} Sporacle DB'
           push: 'origin database --set-upstream --force'
       # - name: 'Create release'
