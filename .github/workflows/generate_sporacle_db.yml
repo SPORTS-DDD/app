@@ -55,7 +55,7 @@ jobs:
           add: 'data/database.db'
           message: '${{ env.TAG_VERSION }} Sporacle DB'
           fetch: --all
-          push: 'origin database --set-upstream --force'
+          push: 'database --set-upstream --force'
       # - name: 'Create release'
       #   uses: softprops/action-gh-release@v2
       #   with:
