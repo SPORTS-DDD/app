@@ -49,13 +49,22 @@ jobs:
         run: echo "TAG_VERSION=$(python3 -m set_tag_version)" >> $GITHUB_ENV
       - name: 'Debug elements'
         run: ls
+      
       - name: 'Commit Sporacle DB'
-        uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
+        uses: actions-js/push@master
         with:
-          add: 'data/database.db'
+          github_token: ${{ github.token }}
+          branch: database
+          directory: ${{ env.SQLITE_DATABASE_FOLDER_PATH }}
           message: '${{ env.TAG_VERSION }} Sporacle DB'
-          fetch: --all
-          push: 'database --set-upstream --force'
+          force: true
+      # - name: 'Commit Sporacle DB'
+      #   uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
+      #   with:
+      #     add: 'data/database.db'
+      #     message: '${{ env.TAG_VERSION }} Sporacle DB'
+      #     fetch: --all
+      #     push: 'database --set-upstream --force'
       # - name: 'Create release'
       #   uses: softprops/action-gh-release@v2
       #   with:
