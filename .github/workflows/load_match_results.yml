@@ -1,0 +1,87 @@
+name: 'Load match results'
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '51 9 * * 1'
+    - cron: '42 9 * * 2'
+    - cron: '33 6 * * 3'
+    - cron: '24 6 * * 4'
+    - cron: '35 7 * * 5'
+    - cron: '46 7 * * 6'
+    - cron: '47 7 * * 7'
+
+permissions:
+  contents: write
+    
+jobs:
+
+  generate_sporacle_db:
+    runs-on: ubuntu-latest
+    env:
+      SQLITE_DATABASE_FOLDER_PATH: "${{ github.workspace }}/data"
+      TESTS_PATH: "${{ github.workspace }}/sporacle/src/tests"
+      SPORACLE_CONFIG_PATH: "${{ github.workspace }}/sporacle_config/match_selection.yml"
+    steps:
+      - name: 'Git Checkout'
+        uses: actions/checkout@v4
+        with:
+          ref: some-branch
+      - name: 'Setup Python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # - name: Install OS dependencies'
+      #   run: |
+      #     sudo apt-get -y update && sudo apt-get -y upgrade \
+      #     && sudo apt-get -y install \
+      #         software-properties-common \
+      #         libffi-dev \
+      #         libpq-dev\
+      #         gcc
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+      - name: Clone sporacle
+        run: git clone https://${{ secrets.SPORACLE_GITHUB_TOKEN }}@github.com/SPORTS-DDD/sporacle.git
+      - name: 'Install dependencies'
+        id: install_dependencies
+        run:
+          uv pip install "sporacle @ sporacle/src" --system
+      - name: 'Create DB folder if not exists'
+        run: mkdir -p ${{ env.SQLITE_DATABASE_FOLDER_PATH }}
+      - name: 'Extract/Load match results'
+        run: sporacle load match_results
+      - name: 'Set tag version'
+        run: echo "TAG_VERSION=$(python3 -m set_tag_version)" >> $GITHUB_ENV
+      - name: 'Debug elements'
+        run: ls
+      
+      - name: 'Commit Sporacle DB'
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ github.token }}
+          branch: database
+          directory: ${{ env.SQLITE_DATABASE_FOLDER_PATH }}
+          message: '${{ env.TAG_VERSION }} Sporacle DB'
+          force: true
+      # - name: 'Commit Sporacle DB'
+      #   uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
+      #   with:
+      #     add: 'data/database.db'
+      #     message: '${{ env.TAG_VERSION }} Sporacle DB'
+      #     fetch: --all
+      #     push: 'database --set-upstream --force'
+      # - name: 'Create release'
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     name: 'Sporacle DB v${{ env.TAG_VERSION }}'
+      #     tag_name: v${{ env.TAG_VERSION }}
+      #     files: '${{ env.SQLITE_DATABASE_FOLDER_PATH }}/database.db'
+      #     make_latest: true
+      # - name: 'Drop previous releases'
+      #   uses: sgpublic/delete-release-action@v1.1
+      #   with:
+      #     release-drop: true
+      #     release-drop-tag: true
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token }}
