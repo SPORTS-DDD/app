@@ -21,13 +21,14 @@ def display_upload_db_dialog():
     uploaded_file = st.file_uploader('Import a local DB file')
     if uploaded_file is not None:
         data.add_uploaded_db_file(uploaded_file)
-        st.success('Database successfully imported')
+        st.success('Database successfully imported. Please close this dialog.')
+        
 
 @st.dialog('Download local DB')
 def display_download_db_dialog():
-    with open('local.database.db') as f:
+    with open('local.database.db', 'rb') as f:
         data = f.read()
-    st.dowload_button(
+    st.download_button(
         label='Download local DB', 
         data=data,
         file_name="local.database.db"
@@ -54,6 +55,7 @@ with st.expander('Database Management'):
     create_col, upload_col, download_col = st.columns(3)
     if create_col.button('Create new empty local DB'):
         data.create_or_replace_local_db()
+        
     if upload_col.button('Upload existing DB'):
         display_upload_db_dialog()
 

@@ -96,6 +96,7 @@ def create_or_replace_local_db():
     if local_db_path.exists():
         os.remove(local_db_path)
     _ = get_sqlite_local_db_engine()
+    init_database()
 
 
 def attach_sporacle_db_to_local_db():
@@ -106,18 +107,16 @@ def attach_sporacle_db_to_local_db():
         con.execute()
 
 def initial_app_setup(sporacle_bytes_data):
-    create_or_replace_local_db()
     with open("database.db", 'wb') as f:
         f.write(sporacle_bytes_data)
     _ = get_sqlite_sporacle_db_engine()
-    init_database()
+    create_or_replace_local_db()
     SessionKey.SPORACLE_DB_DOWNLOADED.update(True)
     SessionKey.LOCAL_DB_INITIALIZED.update(True)
 
 def add_uploaded_db_file(uploaded_db_file):
-    create_or_replace_local_db()
-    conn = get_sqlite_local_db_engine()
-    conn.deserialize(uploaded_db_file.getvalue())
+    with open("local.database.db", 'wb') as f:
+        f.write(uploaded_db_file.getvalue())
 
 def copy_odds_from_db_to_local_db():
     local_engine = get_sqlalchemy_local_db_engine()
@@ -128,7 +127,7 @@ def copy_odds_from_db_to_local_db():
         con.execute(
             text(
                 """
-                INSERT INTO bet_list_odds(
+                INSERT OR REPLACE INTO bet_list_odds(
                 key, odd_match_code, odd_name, odd_value, odd_threshold
                 ) SELECT key, odd_match_code, odd_name, odd_value, odd_threshold
                 FROM odds_db.odds;
