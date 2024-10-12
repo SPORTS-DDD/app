@@ -1,7 +1,15 @@
-name: 'Generate Sporacle DB'
+name: 'Load match results'
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '51 9 * * 1'
+    - cron: '42 9 * * 2'
+    - cron: '33 6 * * 3'
+    - cron: '24 6 * * 4'
+    - cron: '35 7 * * 5'
+    - cron: '46 7 * * 6'
+    - cron: '47 7 * * 0'
 
 permissions:
   contents: write
@@ -17,18 +25,20 @@ jobs:
     steps:
       - name: 'Git Checkout'
         uses: actions/checkout@v4
+        with:
+          ref: some-branch
       - name: 'Setup Python'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install OS dependencies'
-        run: |
-          sudo apt-get -y update && sudo apt-get -y upgrade \
-          && sudo apt-get -y install \
-              software-properties-common \
-              libffi-dev \
-              libpq-dev\
-              gcc
+      # - name: Install OS dependencies'
+      #   run: |
+      #     sudo apt-get -y update && sudo apt-get -y upgrade \
+      #     && sudo apt-get -y install \
+      #         software-properties-common \
+      #         libffi-dev \
+      #         libpq-dev\
+      #         gcc
       - name: Install uv
         uses: astral-sh/setup-uv@v2
       - name: Clone sporacle
@@ -37,12 +47,8 @@ jobs:
         id: install_dependencies
         run:
           uv pip install "sporacle @ sporacle/src" --system
-      - name: 'Create DB folder'
-        run: mkdir ${{ env.SQLITE_DATABASE_FOLDER_PATH }}
-      - name: 'Extract/Load future matches & odds'
-        run: sporacle load odds_matches
-      - name: 'Extract/Load competitions'
-        run: sporacle load competitions
+      - name: 'Create DB folder if not exists'
+        run: mkdir -p ${{ env.SQLITE_DATABASE_FOLDER_PATH }}
       - name: 'Extract/Load match results'
         run: sporacle load match_results
       - name: 'Set tag version'

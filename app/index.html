@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>stlite app</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.68.0/build/stlite.css"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.68.0/build/stlite.js"></script>
+    <script>
+        stlite.mount(
+            {
+                requirements: ["sqlite3", "sqlalchemy", "pyarrow", "requests", "pandas"],
+                entrypoint: "main.py",
+                files: {
+                    "main.py": {
+                        url: "./main.py",
+                    },
+                    "app_session.py": {
+                        "url":"./app_session.py"
+                    },
+                    "home.py": {
+                        url: "./home.py",
+                    },
+                    "data.py": {
+                        url: "./data.py"
+                    },
+                    "bet_lists/create_update_bet_list.py": {
+                        url: "./bet_lists/create_update_bet_list.py"
+                    },
+                    "bet_lists/search_bet_lists.py": {
+                        url: "./bet_lists/search_bet_lists.py"
+                    },
+                    "bet_lists/utils.py": {
+                        url: "./bet_lists/utils.py",
+                    },
+                }
+            }
+        );
+    </script>
+  </body>
+</html>
