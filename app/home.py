@@ -33,6 +33,24 @@ def display_download_db_dialog():
         data=data,
         file_name="local.database.db"
     )
+
+@st.fragment
+def display_query_form():
+    with st.expander('Query databases'):
+        selected_db = st.selectbox(
+            label='What database do you want to query ?', 
+            options=["Sporacle", "Local DB"]
+        )
+        if selected_db == "Sporacle":
+            engine = data.get_sqlalchemy_sporacle_engine()
+        elif selected_db == "Local DB":
+            engine = data.get_sqlalchemy_local_db_engine()
+        else:
+            raise NotImplementedError("The database should be either Sporacle or Local DB")
+        query = st.text_area(f"Query to {selected_db}")
+        if query:
+            df = data.get_table_from_query(engine, query)
+            st.write(df)
 #endregion
 
 
@@ -63,8 +81,5 @@ with st.expander('Database Management'):
         if download_col.button('Download local DB'):
             display_download_db_dialog()
 
-st.subheader('Sporacle DB')
-with st.expander('Matches'):
-    engine = data.get_sqlalchemy_sporacle_engine()
-    df = data.get_table_from_query(engine, "SELECT * FROM matches;")
-    st.write(df)
+
+display_query_form()
