@@ -26,7 +26,7 @@ jobs:
       - name: 'Git Checkout'
         uses: actions/checkout@v4
         with:
-          ref: some-branch
+          ref: database
       - name: 'Setup Python'
         uses: actions/setup-python@v5
         with:
