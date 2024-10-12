@@ -61,7 +61,7 @@ if (
     not SessionKey.SPORACLE_DB_DOWNLOADED.is_in_session()
 ):
     
-    URL = 'https://raw.githubusercontent.com/SPORTS-DDD/sporacle_app/refs/heads/test_commit_db_file/database.db'
+    URL = 'https://raw.githubusercontent.com/SPORTS-DDD/sporacle_app/refs/heads/database/data/database.db'
     sporacle_bytes_data = await download_file_as_bytes(URL) #noqa
     data.initial_app_setup(sporacle_bytes_data)
     st.success('Database successfully initialized')
