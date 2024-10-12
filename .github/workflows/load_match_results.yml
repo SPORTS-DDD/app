@@ -1,4 +1,4 @@
-name: 'Load match results'
+name: 'Load Match Results'
 
 on:
   workflow_dispatch:
