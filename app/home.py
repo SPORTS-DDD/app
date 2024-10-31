@@ -1,6 +1,7 @@
 from app_session import SessionKey, setup_bet_lists_in_session
 import streamlit as st
 import data
+from data import IN_MEMORY_SQLALCHEMY_DB_ENGINE
 import pyodide
 
 import requests as rq
@@ -39,12 +40,14 @@ def display_query_form():
     with st.expander('Query databases'):
         selected_db = st.selectbox(
             label='What database do you want to query ?', 
-            options=["Sporacle", "Local DB"]
+            options=["Sporacle", "Local DB", "Cross-Database"]
         )
         if selected_db == "Sporacle":
             engine = data.get_sqlalchemy_sporacle_engine()
         elif selected_db == "Local DB":
             engine = data.get_sqlalchemy_local_db_engine()
+        elif selected_db == "Cross-Database":
+            engine = IN_MEMORY_SQLALCHEMY_DB_ENGINE
         else:
             raise NotImplementedError("The database should be either Sporacle or Local DB")
         query = st.text_area(f"Query to {selected_db}")
