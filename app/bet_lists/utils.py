@@ -3,7 +3,6 @@ from functools import reduce
 import streamlit as st
 import datetime as dt
 import pandas as pd
-from data import get_odds_table, upsert_bet_list
 from app_session import (
     SessionKey, 
     update_bet_list_odd_in_session,
@@ -23,11 +22,6 @@ def get_odds_for_match(match, df_odds):
         .query(
             "odd_match_code == @match.odd_match_code"
         )
-        # .assign(
-        #     odd_label = lambda df_: (
-        #         df_.odd_name + ' : ' + df_.odd_value.apply(str)
-        #     )
-        # )
     )
 
 def init_new_bet_list_in_session(df_program_matches):
@@ -45,7 +39,6 @@ def init_new_bet_list_in_session(df_program_matches):
     }
     SessionKey.NEW_BET_LIST_MATCHES.update(dc_match_codes)
 
-
 def create_or_update_bet_list():
     if (
         SessionKey.CREATE_UPDATE_BET_LIST_ACTION.is_in_session() and
@@ -55,32 +48,14 @@ def create_or_update_bet_list():
         action = SessionKey.CREATE_UPDATE_BET_LIST_ACTION.get()
         bet_list_to_cu = SessionKey.UPDATE_BET_LIST_NAME.get()
     else:
-        action = st.selectbox(
-            label="Do you want to create or update the bet list",
-            options=[
-                action.value for action in CREATE_UPDATE_BET_LIST_ACTION
-            ],
-            format_func=lambda x_: x_.title(),
-        )
-        if action:
-            if action.lower() == CREATE_UPDATE_BET_LIST_ACTION.UPDATE:
-                existing_bet_lists_in_db = get_bet_list_names_in_db()
-                # bet_lists_in_session = list(SessionKey.BET_LISTS.get().values())
-                # bet_lists_options = existing_bet_lists_in_db + bet_lists_in_session
-                bet_list_options = get_bet_list_names_in_db()
-                bet_list_to_cu = st.selectbox(
-                    label='Select the bet list you want to update',
-                    options=bet_list_options,
-                    index=None
-                )
-                SessionKey.UPDATE_BET_LIST_NAME.update(bet_list_to_cu)
-            elif action.lower() == CREATE_UPDATE_BET_LIST_ACTION.CREATE:
-                bet_list_to_cu = st.text_input("Name of the bet list")
-                if not bet_list_to_cu:
-                    st.warning('First create a name for your bet list')
-        
-    
-            SessionKey.CREATE_UPDATE_BET_LIST_ACTION.update(action)
+        action = CREATE_UPDATE_BET_LIST_ACTION.CREATE
+        bet_list_to_cu = st.text_input("Name of the bet list")
+        existing_bet_lists_in_db = get_bet_list_names_in_db()
+        if bet_list_to_cu in existing_bet_lists_in_db:
+            st.error(f'A bet list named {bet_list_to_cu} already exists in the database.', icon="❗")
+        if not bet_list_to_cu:
+            st.warning('First create a name for your bet list')
+        SessionKey.CREATE_UPDATE_BET_LIST_ACTION.update(action)
     return bet_list_to_cu
 
 def display_df_program(ls_selected=None):
@@ -105,9 +80,14 @@ def display_df_program(ls_selected=None):
                 help="Check to add match to bet list",
                 default=False
             ),
+            "match_date": st.column_config.DateColumn(
+                "Date",
+                format="DD-MM-YYYY HH:mm",
+                disabled=True
+            )
         },
         disabled=[
-                'match_date', 'competition_name', 'description', 
+                'match_date', 'competition', 'description', 
                 '1', 'X', '2', 
                 '1X', 'X2', '12', 
                 '- 0.5 go.', '+ 0.5 go.', 
@@ -124,6 +104,16 @@ def display_df_program(ls_selected=None):
 
 @st.fragment
 def display_new_bet_list_form(bet_list_name, df_program_matches, df_previous_bet_list_odds):
+    LS_ORDERED_ODDS = [
+        '1', 'X', '2', 
+        '1X', 'X2', '12', 
+        '- 0.5 go.', '+ 0.5 go.', 
+        '- 1.5 go.', '+ 1.5 go.',
+        '- 2.5 go.', '+ 2.5 go.',
+        '- 3.5 go.', '+ 3.5 go.', 
+        '- 4.5 go.', '+ 4.5 go.',
+        '- 5.5 go.', '+ 5.5 go.',
+    ]
     df_odds = get_odds_table()
     selected_matches = (
         df_program_matches
@@ -154,15 +144,15 @@ def display_new_bet_list_form(bet_list_name, df_program_matches, df_previous_bet
         with st.container(border=True):
             st.markdown(f'##### {match.description}')
             match_info_col1, match_info_col2 = st.columns(2)
-            match_info_col1.write(match.competition_name)
+            match_info_col1.write(match.competition)
             match_info_col2.write(
                 (
-                    dt.datetime.strptime(match.match_date, r"%Y-%m-%d %H:%M:%S%z")
-                    .strftime(r'%d/%m/%Y %H:%M')
+                    match.match_date.strftime(r'%d/%m/%Y %H:%M')
                 )
             )
+            dataframe_columns = [col for col in LS_ORDERED_ODDS if col in df_match_odds.columns]
             selection = st.dataframe(
-                data=df_match_odds,
+                data=df_match_odds[dataframe_columns],
                 on_select="rerun",
                 selection_mode=["single-column"]
             )
@@ -177,8 +167,8 @@ def display_new_bet_list_form(bet_list_name, df_program_matches, df_previous_bet
                 )
                 odd_dict = {
                     "match_description":match.description,
-                    "match_datetime":dt.datetime.strptime(match.match_date, r"%Y-%m-%d %H:%M:%S%z"),
-                    "competition":match.competition_name,
+                    "match_datetime":match.match_date,
+                    "competition":match.competition,
                 } | odd_full_data
                 update_bet_list_odd_in_session(match, odd_dict)
     st.subheader('Summary')
@@ -202,7 +192,7 @@ def display_new_bet_list_form(bet_list_name, df_program_matches, df_previous_bet
             
 
 
-    form_submited = st.button('Add bet list')
+    form_submited = st.button('Save bet list')
 
     if form_submited:
         bet_list_odds = [
@@ -227,6 +217,7 @@ def display_previous_odd(match, df_match_odds, df_previous_bet_list_odds):
     return (
         df_match_odds
         .style.apply(color_previous_odd, axis=0, subset=[highlighted_col])
+        .format(precision=2)
     )
 
 
