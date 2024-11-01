@@ -42,7 +42,7 @@ with win_bl_tab:
             st.dataframe(
                 df_bet_list,
                 column_config={
-                    "match_date":st.column_config.DateColumn('date',format="YYYY-MM-DD HH:mm"),
+                    "match_date":st.column_config.DateColumn('date',format="DD-MM-YYYY HH:mm"),
                     "odd_value":st.column_config.NumberColumn('odd value', format="%.2f"),
                 }
             )

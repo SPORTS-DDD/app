@@ -11,7 +11,7 @@ st.title('Sporacle App')
 
 home_page = st.Page("home.py", title="Home", icon=":material/home:")
 at_term_bet_lists = st.Page("bet_lists/at_term_bet_lists.py", title="At-term bet lists", icon=":material/fact_check:")
-search_bet_lists = st.Page("bet_lists/search_bet_lists.py", title="Search bet lists", icon=":material/search:")
+search_bet_lists = st.Page("bet_lists/search_bet_lists.py", title="Search on-going bet lists", icon=":material/search:")
 # bet_lists_page = st.Page("bet_lists/bet_lists.py", title="Bet Lists", icon=":material/table:")
 create_update_bet_list_page = st.Page("bet_lists/create_update_bet_list.py", title="Create/Update bet list", icon=":material/edit_note:")
 # new_bet_list_page = st.Page("bet_lists/new_bet_list.py", title="Create new bet list", icon=":material/format_list_numbered_rtl:")
@@ -23,9 +23,9 @@ pg = st.navigation(
         "Main":[home_page],
         "Bets":[
             # bet_lists_page, 
-            at_term_bet_lists,
             search_bet_lists,
             create_update_bet_list_page,
+            at_term_bet_lists,
             # new_bet_list_page, 
             # saved_bet_lists_page, 
             # update_bet_list_page

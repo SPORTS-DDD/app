@@ -1,6 +1,6 @@
 import streamlit as st
 from data import (
-    get_saved_bet_lists, 
+    get_on_going_bet_lists, 
     get_bet_list_df,
     drop_bet_list
 )
@@ -16,11 +16,11 @@ def drop_bet_list_dialog(bet_list_name):
     if no_col.button('No'):
         st.rerun()
 
-df_saved_bet_lists = get_saved_bet_lists()
+df_on_going_bet_lists = get_on_going_bet_lists()
 
 selected_bet_list_name = st.selectbox(
     label="Select a bet list",
-    options=df_saved_bet_lists.bet_list_name.to_list(),
+    options=df_on_going_bet_lists.bet_list_name.to_list(),
     index=None
 )
 if selected_bet_list_name:

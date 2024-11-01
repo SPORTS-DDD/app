@@ -220,13 +220,59 @@ def get_odds_table():
 def get_competitions():
     return get_table('competitions')
 
-def get_saved_bet_lists():
-    return get_localdb_table('bet_lists')
+def get_on_going_bet_lists():
+    engine = IN_MEMORY_SQLALCHEMY_DB_ENGINE
+    query = """
+    SELECT * FROM app_db.bet_lists as bet_lists
+    WHERE bet_lists.last_match_date > DATE('now')
+    """
+    df_on_going_bet_lists = get_table_from_query(
+        engine=engine, 
+        query=query
+    )
+    return df_on_going_bet_lists
+
+def get_future_odds():
+    engine = IN_MEMORY_SQLALCHEMY_DB_ENGINE
+    query = """
+    SELECT
+        odds.*
+    FROM sporacle_db.odds as odds 
+    LEFT JOIN sporacle_db.matches as matches USING (odd_match_code)
+    WHERE matches.match_date > DATE('now')
+    """
+    df_future_odds = get_table_from_query(
+        engine=engine, 
+        query=query
+    )
+    return df_future_odds
+
+def get_future_matches():
+    engine = IN_MEMORY_SQLALCHEMY_DB_ENGINE
+    query = """
+    SELECT
+        matches.odd_match_code as odd_match_code,
+        matches.description as description,
+        matches.match_date as match_date,
+        competitions.name as competition,
+        matches.competition_code as competition_code
+    FROM sporacle_db.matches as matches
+    LEFT JOIN sporacle_db.competitions as competitions USING (competition_code)
+    WHERE matches.match_date > DATE('now')
+    """
+    df_future_matches = get_table_from_query(
+        engine=engine, 
+        query=query
+    )
+    return (
+        df_future_matches
+        .astype({"match_date":"datetime64[ns, UTC]"})
+    )
+
 
 def get_program():
     final_cols = [
-        'match_date', 'competition_name', 'description', 
-        # 'home_team', 'away_team',
+        'match_date', 'competition', 'description', 
         '1', 'X', '2', 
         '1X', 'X2', '12', 
         '- 0.5 go.', '+ 0.5 go.', 
@@ -237,22 +283,24 @@ def get_program():
         '- 5.5 go.', '+ 5.5 go.',
         'odd_match_code'
     ]
-    df_raw_odds = get_odds_table()
-    df_odds = clean_odds(df_raw_odds)
-    df_raw_matches = get_matches_table()
-    df_competitions = get_competitions()
-    df_matches = (
-        df_raw_matches.merge(
-            df_competitions,
-            on="competition_code",
-            how="left",
-            validate="m:1",
-        )
-        .rename(columns={"name":"competition_name"})
-    )
+    engine = IN_MEMORY_SQLALCHEMY_DB_ENGINE
+    query = """
+    SELECT
+        matches.odd_match_code as odd_match_code,
+        matches.description as description,
+        matches.match_date as match_date,
+        competitions.name as competition,
+        matches.competition_code as competition_code
+    FROM sporacle_db.matches as matches
+    LEFT JOIN sporacle_db.competitions as competitions USING (competition_code)
+    WHERE matches.match_date > DATE('now')
+    """
+    df_future_matches = get_future_matches()
+    df_raw_future_odds = get_future_odds()
+    df_future_odds = clean_odds(df_raw_future_odds)
     return (
-        df_odds.merge(
-            df_matches,
+        df_future_odds.merge(
+            df_future_matches,
             on="odd_match_code",
             how="right",
             validate="1:m"
@@ -260,15 +308,13 @@ def get_program():
         [final_cols]
     )
 
+
 def get_bet_list_names_in_db():
     engine = IN_MEMORY_SQLALCHEMY_DB_ENGINE
-    if sqlalchemy.inspect(engine).has_table(BetList.__tablename__):
-        with Session(engine) as session:
-            select_statement = select(BetList.bet_list_name)
-            results = session.execute(select_statement).all()
-        return [r[0] for r in results]
-    else:
-        return []
+    with Session(engine) as session:
+        select_statement = select(BetList.bet_list_name)
+        results = session.execute(select_statement).all()
+    return [r[0] for r in results]
     
 def get_matches_for_odds(match_codes):
     engine = IN_MEMORY_SQLALCHEMY_DB_ENGINE
@@ -444,6 +490,7 @@ def get_bet_lists_wide_df():
             odd_keys.value as key
         FROM app_db.bet_lists as bet_lists
         JOIN json_each(bet_lists.odds) as odd_keys
+        WHERE bet_lists.last_match_date < DATE('now')
     ),
 
     bet_list_summary as (
